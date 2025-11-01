@@ -20,11 +20,11 @@ st.markdown("Unggah screenshot chart Anda, dan AI (Gemini) akan menganalisisnya.
 
 # PERINGATAN: JANGAN UPLOAD FILE INI KE GITHUB
 # TEMPEL (PASTE) KEY BARU ANDA LANGSUNG DI SINI:
-api_key = "gen-lang-client-0280181801" 
+api_key = "AIzaSyBko8lA5slVT46Zr0VJxTN5Dn02IGmGhEA" 
 
 # Kita tidak lagi menggunakan st.secrets untuk tes ini
 try:
-    if not api_key or api_key == "gen-lang-client-0280181801":
+    if not api_key or api_key == "AIzaSy...KEY_BARU_ANDA_TEMPEL_DI_SINI":
         st.error("Harap masukkan API key Anda langsung ke dalam kode app.py di baris 24.")
         st.stop()
         
@@ -129,4 +129,5 @@ if uploaded_file is not None:
                 st.error(f"Terjadi kesalahan saat menghubungi API Gemini: {e}")
 else:
     st.info("Silakan unggah gambar untuk memulai analisis.")
+
 
