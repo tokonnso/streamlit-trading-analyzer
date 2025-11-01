@@ -14,17 +14,31 @@ st.set_page_config(
 st.title("Analisis Indikator Trading AI 📈")
 st.markdown("Unggah screenshot chart Anda, dan AI (Gemini) akan menganalisisnya.")
 
-# --- Penanganan API Key ---
+# --- ======================================================= ---
+# ---                 BAGIAN TES DEBUGGING                    ---
+# --- ======================================================= ---
+
+# PERINGATAN: JANGAN UPLOAD FILE INI KE GITHUB
+# TEMPEL (PASTE) KEY BARU ANDA LANGSUNG DI SINI:
+api_key = "AIzaSy...KEY_BARU_ANDA_TEMPEL_DI_SINI" 
+
+# Kita tidak lagi menggunakan st.secrets untuk tes ini
 try:
-    api_key = st.secrets["GOOGLE_API_KEY"]
+    if not api_key or api_key == "AIzaSy...KEY_BARU_ANDA_TEMPEL_DI_SINI":
+        st.error("Harap masukkan API key Anda langsung ke dalam kode app.py di baris 24.")
+        st.stop()
+        
     genai.configure(api_key=api_key)
-except (KeyError, FileNotFoundError):
-    st.error("File `.streamlit/secrets.toml` tidak ditemukan atau tidak berisi `GOOGLE_API_KEY`.")
-    st.info("Harap buat file `.streamlit/secrets.toml` di folder proyek Anda dan tambahkan `GOOGLE_API_KEY = \"API_KEY_ANDA\"`.")
-    st.stop() 
+    
 except Exception as e:
-    st.error(f"Gagal mengkonfigurasi Google AI. Pastikan API Key Anda valid. Error: {e}")
+    # Error ini akan muncul jika key-nya valid TAPI API-nya tidak aktif
+    st.error(f"Gagal mengkonfigurasi Google AI. Error: {e}")
     st.stop()
+
+# --- ======================================================= ---
+# ---                AKHIR BAGIAN TES DEBUGGING               ---
+# --- ======================================================= ---
+
 
 # --- Konfigurasi Model AI ---
 try:
@@ -32,6 +46,7 @@ try:
 except Exception as e:
     st.error(f"Gagal memuat model Gemini. Error: {e}")
     st.stop()
+
 
 # --- Sistem Prompt (Instruksi Permanen untuk AI) ---
 system_prompt = """Anda adalah seorang analis teknikal trading AI yang ahli. 
@@ -59,7 +74,7 @@ Jawab dalam Bahasa Indonesia.
 uploaded_file = st.file_uploader("Pilih Gambar Screenshot", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # 2. Pratinjau Gambar
+    # 2. Pratinau Gambar
     try:
         image = Image.open(uploaded_file)
         st.image(image, caption="Gambar yang Diunggah", use_column_width=True)
@@ -78,32 +93,15 @@ if uploaded_file is not None:
     if st.button("Analisis Sekarang"):
         with st.spinner("AI sedang menganalisis gambar Anda..."):
             try:
-                # === INI ADALAH BAGIAN YANG DIPERBAIKI ===
-                
-                # Kita gabungkan instruksi sistem (system_prompt) dan
-                # prompt spesifik pengguna (user_prompt) menjadi satu.
-                
+                # --- Versi perbaikan untuk library lama ---
                 user_task = f"Lakukan analisis prediktif (bullish/bearish) pada gambar chart ini. Konteks timeframe adalah: {timeframe}."
+                full_prompt = f"{system_prompt}\n\n---\n\nPERINTAH SPESIFIK:\nGambar terlampir.\n{user_task}"
                 
-                # Gabungkan semuanya menjadi satu prompt besar
-                full_prompt = f"""
-                {system_prompt}
-                
-                ---
-                
-                PERINTAH SPESIFIK:
-                Gambar terlampir.
-                {user_task}
-                """
-                
-                # Siapkan 'contents' untuk API
                 contents = [
                     {
                         "role": "user",
                         "parts": [
-                            # Bagian 1: Teks gabungan (instruksi + tugas)
                             {"text": full_prompt}, 
-                            # Bagian 2: Gambar
                             {"inline_data": {
                                 "mime_type": uploaded_file.type,
                                 "data": uploaded_file.getvalue()
@@ -112,11 +110,8 @@ if uploaded_file is not None:
                     }
                 ]
                 
-                # Panggil API HANYA dengan 'contents'
-                # Kita hapus argumen 'system_instruction' yang bermasalah
                 response = model.generate_content(contents)
-                
-                # === AKHIR DARI BAGIAN YANG DIPERBAIKI ===
+                # --- Akhir versi perbaikan ---
                 
                 # 5. Tampilkan Hasil
                 st.subheader("Hasil Analisis AI:")
@@ -130,6 +125,7 @@ if uploaded_file is not None:
                 )
 
             except Exception as e:
+                # Jika error 'API key not valid' MUNCUL LAGI, berarti key Anda 100% salah.
                 st.error(f"Terjadi kesalahan saat menghubungi API Gemini: {e}")
 else:
     st.info("Silakan unggah gambar untuk memulai analisis.")
